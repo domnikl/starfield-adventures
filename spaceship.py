@@ -68,8 +68,8 @@ class Spaceship(object):
         for shot in self.shots:
             shot.draw(surface)
 
-    def is_colliding_with(self, enemies):
-        return len(enemies.enemies_in_bounding_box(self.x, self.y, self.x + self.width, self.y + self.height)) > 0
+    def colliding_enemies(self, enemies):
+        return enemies.enemies_in_bounding_box(self.x, self.y, self.x + self.width, self.y + self.height)
 
     def shot_enemies(self, enemies):
         e = []

@@ -7,10 +7,22 @@ from enemy import Enemies
 import stars
 import os
 
+class Game(object):
+    def __init__(self):
+        self.score = 0
+
+    def killed_enemy(self, enemy):
+        self.score += enemy.speed * 100
+
+    def got_killed(self):
+        self.score = int(self.score / 2)
+
 def main():
-    points = 0
+    game = Game()
+
     pygame.init()
     clock = pygame.time.Clock()
+    myfont = pygame.font.Font(None, 30)
 
     info = pygame.display.Info()
     width = int(info.current_w / 2)
@@ -59,21 +71,23 @@ def main():
             movable.update()
 
         for e in spaceship.shot_enemies(enemies):
-            points += e.speed * 100
+            game.killed_enemy(e)
             enemies.kill(e)
 
-        if spaceship.is_colliding_with(enemies):
-            print("GAME OVER!")
-            sys.exit()
+        for e in spaceship.colliding_enemies(enemies):
+            game.got_killed()
+            enemies.kill(e)
 
         screen.fill((0, 0, 0))
 
         for drawable in game_objects:
             drawable.draw(screen)
 
+        label = myfont.render(str(game.score), 1, (255,255,0))
+        screen.blit(label, (20, 20))
+
         pygame.display.flip()
         clock.tick(120) # FPS
-        print("points = " + str(points))
 
 if __name__ == '__main__':
     random.seed()
