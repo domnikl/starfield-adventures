@@ -25,12 +25,12 @@ class Spaceship(object):
             self.direction = direction
             self.speed = random.randint(1, 2)
         if self.direction != direction:
-            self.speed -= 2 # slow down faster
+            self.speed -= 3 # slow down faster
         else:
-            self.speed += 1
+            self.speed += 3
 
-        if self.speed > 12:
-            self.speed = 12
+        if self.speed > 20:
+            self.speed = 20
         
     def update(self):
         if self.direction == "left":
@@ -41,7 +41,7 @@ class Spaceship(object):
         if self.x > self.surface_x:
             self.x = 0
         
-        if self.x < 0:
+        if self.x + self.width < 0:
             self.x = self.surface_x
         
     def draw(self, surface):
