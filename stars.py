@@ -1,23 +1,7 @@
-import sys
-import pygame
 import random
+import pygame
 
-pygame.init()
-
-info = pygame.display.Info()
-width = info.current_w / 2
-height = info.current_h / 2
-
-size = width, height
-speed = [10, 0]
-black = 0, 0, 0
-white = (255, 255, 255)
-
-random.seed()
-
-screen = pygame.display.set_mode(size)
-
-class Star:
+class Star(object):
     def __init__(self, init_x, init_y, size, speed, color):
         self.position = [init_x, init_y]
         self.size = size
@@ -33,13 +17,14 @@ class Star:
 
         return x > 0 and x < width and y > 0 and y < height
 
-    def render(self, surface):
+    def draw(self, surface):
         start_pos = self.position
         end_pos = [self.position[0], self.position[1] + self.size]
 
         pygame.draw.line(surface, self.color, start_pos, end_pos)
 
-class Starfield:
+
+class Starfield(object):
     def __init__(self, width, height):
         self.stars = []
         self.width = width
@@ -54,11 +39,11 @@ class Starfield:
 
         size = distance
         speed = distance
-        color = (255 - distance * 5, 255 - distance * 5, 255 - distance * 5)
+        color = (255 - distance * 10, 255 - distance * 10, 255 - distance * 10)
 
         self.stars.append(Star(init_x, init_y, size, speed, color))
 
-    def move(self):
+    def update(self):
         remaining_stars = []
         for star in self.stars:
             star.move()
@@ -70,23 +55,6 @@ class Starfield:
             
         self.stars = remaining_stars
 
-    def render(self, surface):
+    def draw(self, surface):
         for star in self.stars:
-            star.render(surface)
-
-starfield = Starfield(width, height)
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: 
-            sys.exit()
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                sys.exit()
-
-    starfield.move()
-    
-    screen.fill(black)
-    starfield.render(screen)
-    pygame.display.flip()
+            star.draw(surface)
