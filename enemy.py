@@ -1,50 +1,59 @@
 import random
 
 class Enemies(object):
-    def __init__(self, width, height, sprite_sets):
+    def __init__(self, surface_width, surface_height, sprite_sets):
         self.sprites = sprite_sets[0]
 
-        self.width = width
-        self.height = height
-        self.enemies = []
+        self.surface_width = surface_width
+        self.surface_height = surface_height
+        self.width = 32
+        self.additional_enemy_propability = 999
+        self.enemies = {}
         self._add_random_enemy()
 
     def _add_random_enemy(self):
         speed = random.randint(1, 3)
-        init_x = random.randint(0, self.width)
+        init_x = random.randint(0, self.surface_width - self.width)
 
-        self.enemies.append(Enemy(init_x, speed, self.sprites))
+        self.enemies[init_x] = Enemy(init_x, speed, self.sprites)
 
     def update(self):
-        enemies = []
-        for enemy in self.enemies:
+        for _, enemy in self.enemies.copy().items():
             enemy.update()
 
-            if enemy.is_in_rect(0, 0, self.width, self.height):
-                enemies.append(enemy)
-            else:
-                self._add_random_enemy()
+            if not enemy.is_in_rect(0, 0, self.surface_width, self.surface_height):
+                self._remove(enemy)
 
-            if random.randint(0, 1000) > 999:
-                self._add_random_enemy()
+    def kill(self, enemy):
+        self.additional_enemy_propability -= 3
+        self._remove(enemy)
 
-        self.enemies = enemies
-        
+    def _remove(self, enemy):
+        del self.enemies[enemy.x]
+        self._add_random_enemy()
+
+        if random.randint(0, 1000) > self.additional_enemy_propability:
+            self._add_random_enemy()
+
     def draw(self, surface):
-        for enemy in self.enemies:
+        for _, enemy in self.enemies.items():
             enemy.draw(surface)
 
-    def is_enemy_in_bounding_box(self, lx, ly, rx, ry):
-        for enemy in self.enemies:
+    def enemies_in_bounding_box(self, lx, ly, rx, ry):
+        enemies = []
+
+        for _, enemy in self.enemies.items():
             if enemy.is_in_rect(lx, ly, rx, ry):
-                return True
+                enemies.append(enemy)
         
-        return False
+        return enemies
 
 class Enemy(object):
     def __init__(self, init_x, speed, sprites):
         self.x = init_x
         self.y = 0
+        self.width = 32
+        self.height = 32
         self.speed = speed
         self.image_index = 0
         self.images = sprites
@@ -61,5 +70,10 @@ class Enemy(object):
         surface.blit(self.images[self.image_index], (self.x, self.y))
 
     def is_in_rect(self, lx, ly, rx, ry):
-        return self.x >= lx and self.y >= ly and self.x <= rx and self.y <= ry
-    
+        my_rx = self.x + self.width
+        my_ry = self.y + self.height
+
+        left = self.x >= lx and self.y >= ly and self.x <= rx and self.y <= ry
+        right = my_rx >= lx and my_ry >= ly and my_rx <= rx and my_ry <= ry
+
+        return left or right
