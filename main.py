@@ -10,12 +10,17 @@ import os
 class Game(object):
     def __init__(self):
         self.score = 0
+        self.lives = 3
 
     def killed_enemy(self, enemy):
         self.score += enemy.speed * 100
 
     def got_killed(self):
         self.score = int(self.score / 2)
+        self.lives -= 1
+
+    def is_gameover(self):
+        return self.lives < 0
 
 def main():
     game = Game()
@@ -27,13 +32,15 @@ def main():
     info = pygame.display.Info()
     width = int(info.current_w / 2)
     height = int(info.current_h / 2)
+    #width = info.current_w
+    #height = info.current_h
 
-    screen = pygame.display.set_mode((width, height), pygame.RESIZABLE|pygame.DOUBLEBUF)
+    screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF)
+    #screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 
     starfield = stars.Starfield(width, height)
 
     spaceship = Spaceship(width, height, spritesheet.spritesheet(os.path.dirname(os.path.realpath(__file__)) + "/spaceship.png"))
-    
     ss = spritesheet.spritesheet(os.path.dirname(os.path.realpath(__file__)) + "/enemy1.png")
 
     enemy_sprites = [ss.images_at(
@@ -53,6 +60,9 @@ def main():
     ]
 
     while True:
+        if game.is_gameover():
+            sys.exit()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
                 sys.exit()
@@ -83,8 +93,8 @@ def main():
         for drawable in game_objects:
             drawable.draw(screen)
 
-        label = myfont.render(str(game.score), 1, (255,255,0))
-        screen.blit(label, (20, 20))
+        screen.blit(myfont.render(str(game.score), 1, (255,255,0)), (20, 20))
+        screen.blit(myfont.render(str(game.lives) + " lives", 1, (255,255,0)), (20, 40))
 
         pygame.display.flip()
         clock.tick(120) # FPS
